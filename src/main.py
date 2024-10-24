@@ -5,8 +5,7 @@ from database.db import Connection
 import boto3
 import json
 import os
-import warnings
-warnings.filterwarnings("ignore", category=SyntaxWarning)
+
 
 formatter = logging.Formatter('[%(levelname)s] [%(asctime)s] %(message)s')
 log = logging.getLogger()

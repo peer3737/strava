@@ -59,6 +59,12 @@ def lambda_handler(event, context):
                     content[activity_key] = activity_details[activity_key]
                 else:
                     content[activity_key] = None
+            if content['elapsed_time'] is None:
+                content['average_speed'] = 0
+            elif float(content['elapsed_time']) == 0:
+                content['average_speed'] = 0
+            else:
+                content['average_speed'] = float(content['distance']) / float(content['elapsed_time'])
 
             db.insert(table='activity', json_data=content)
 

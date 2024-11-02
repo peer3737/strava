@@ -57,6 +57,8 @@ def lambda_handler(event, context):
             for activity_key in activity_keys:
                 if activity_key in activity_details:
                     content[activity_key] = activity_details[activity_key]
+                    if activity_key == 'start_date_local':
+                        content[activity_key] = f'{content[activity_key][0:10]} {content[activity_key][11:19]}'
                 else:
                     content[activity_key] = None
             if content['elapsed_time'] is None:

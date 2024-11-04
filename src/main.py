@@ -26,10 +26,7 @@ strava = Strava()
 
 def lambda_handler(event, context):
     lambda_client = boto3.client('lambda')
-    log.info(os.getenv('DB_USER'))
-    log.info(os.getenv('DB_PASSWORD'))
-    log.info(os.getenv('DB_SERVER'))
-    log.info(os.getenv('DB_NAME'))
+
     try:
         find_activities = db.get_all(table='activity', order_by='start_date_local', order_by_type='desc')
         start_date = str(find_activities[9] + timedelta(days=1))[0:10] + " 00:00:00.000000"

@@ -1,5 +1,5 @@
 from supporting.strava import Strava
-from supporting import direction, effort
+from supporting import direction, effort, weather
 from datetime import datetime, timedelta
 import logging
 from database.db import Connection
@@ -117,6 +117,9 @@ def lambda_handler(event, context):
             InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
             Payload=json.dumps(payload)
         )
+    weather.execute()
     direction.execute()
     effort.execute()
     db.close()
+
+lambda_handler(None, None)

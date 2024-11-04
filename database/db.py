@@ -3,6 +3,9 @@ import datetime
 import logging
 import os
 
+# from dotenv import load_dotenv
+# load_dotenv()
+
 formatter = logging.Formatter('[%(levelname)s] %(message)s')
 log = logging.getLogger()
 log.setLevel("INFO")

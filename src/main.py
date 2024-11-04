@@ -121,5 +121,3 @@ def lambda_handler(event, context):
     direction.execute()
     effort.execute()
     db.close()
-
-lambda_handler(None, None)

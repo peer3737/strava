@@ -1,4 +1,5 @@
 from supporting.strava import Strava
+from supporting import direction, effort, weather
 from datetime import datetime, timedelta
 import logging
 from database.db import Connection
@@ -25,6 +26,7 @@ strava = Strava()
 
 def lambda_handler(event, context):
     lambda_client = boto3.client('lambda')
+
     try:
         find_activities = db.get_all(table='activity', order_by='start_date_local', order_by_type='desc')
         start_date = str(find_activities[9] + timedelta(days=1))[0:10] + " 00:00:00.000000"
@@ -116,3 +118,9 @@ def lambda_handler(event, context):
             InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
             Payload=json.dumps(payload)
         )
+    weather.execute()
+    direction.execute()
+    effort.execute()
+    db.close()
+#
+# lambda_handler(None, None)

@@ -3,6 +3,9 @@ import datetime
 import logging
 import os
 
+# from dotenv import load_dotenv
+# load_dotenv()
+
 formatter = logging.Formatter('[%(levelname)s] %(message)s')
 log = logging.getLogger()
 log.setLevel("INFO")
@@ -137,6 +140,13 @@ class Connection:
 
         except mysql.connector.Error as err:
             log.error(f"Error: {err}")
+    def get_specific(self, table, where="1=1", order_by="id", order_by_type="asc"):
+        cursor = self.cnx.cursor()  # Get cursor from existing connection
+        query = f"SELECT * FROM {table} WHERE {where} ORDER BY {order_by} {order_by_type}"
+        # log.info(query)
+        cursor.execute(query)
+        data = cursor.fetchall()
+        return data
 
     def close(self):  # Method to close connection when done
         self.cnx.close()

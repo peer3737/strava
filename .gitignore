@@ -1,2 +1,11 @@
 .idea/
 test/
+.env
+database/__pycache__/__init__.cpython-311.pyc
+database/__pycache__/db.cpython-311.pyc
+supporting/__pycache__/__init__.cpython-311.pyc
+supporting/__pycache__/direction.cpython-311.pyc
+supporting/__pycache__/effort.cpython-311.pyc
+supporting/__pycache__/strava.cpython-311.pyc
+supporting/__pycache__/open_meteo.cpython-311.pyc,supporting/__pycache__/weather.cpython-311.pyc
+*.pyc

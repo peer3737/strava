@@ -29,10 +29,10 @@ def lambda_handler(event, context):
 
     try:
         find_activities = db.get_all(table='activity', order_by='start_date_local', order_by_type='desc')
-        start_date = str(find_activities[9] + timedelta(days=1))[0:10] + " 00:00:00.000000"
+        start_date = f"{str(find_activities[9] + timedelta(seconds=1))}.000000"
         end_date = "2100-01-01 00:00:00.000000"
         log.info(
-            f"Getting activities between {str(find_activities[9] + timedelta(days=1))[0:10] + ' 00:00:00'} and 2100-01-01 00:00:00")
+            f"Getting activities between {str(find_activities[9] + timedelta(seconds=1))} and 2100-01-01 00:00:00")
 
         # start_date = '2023-07-01 00:00:00.000000'
         # end_date = '2023-07-23 00:00:00.000000'

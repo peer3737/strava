@@ -82,6 +82,10 @@ def execute():
 
     activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM running_colors)',
                                  order_by_type='desc')
+
+    # activities = db.get_specific(table='activity', where='id = 8259287156',
+    #                              order_by_type='desc')
+
     total_act = len(activities)
     act_counter = 0
     for activity in activities:
@@ -89,7 +93,7 @@ def execute():
         act_counter += 1
         log.info(f'Handling activity {activity_id} ({act_counter}/{total_act})')
         stream = db.get_specific(table="activity_streams", where=f"activity_id = {activity_id}")
-        weather = db.get_specific(table="weather_meteo", where=f"activity_id = {activity_id}")
+        weather = db.get_specific(table="weather_knmi", where=f"activity_id = {activity_id}")
         wind = weather[0][4].split(', ')
 
         activity_latlngs = stream[0][5].split('],[')
@@ -110,3 +114,5 @@ def execute():
             "colors": ', '.join(color_values)
         }
         db.insert(table="running_colors", json_data=json_data)
+
+execute()

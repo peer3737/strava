@@ -7,7 +7,7 @@ from supporting import aws
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(os.environ.get("LOG_LEVEL", logging.INFO))
-weather_table = os.environ['WEATHER_TABLE']
+weather_table = os.getenv('WEATHER_TABLE')
 
 def calculate_bearing(lat1, lon1, lat2, lon2, wind_direction):
     colors = {

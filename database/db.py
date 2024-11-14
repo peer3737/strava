@@ -19,13 +19,14 @@ def convert_to_date_string(data):
 
 
 class Connection:
-    def __init__(self, user, password, host):
+    def __init__(self, user, password, host, port):
         try:
             self.cnx = mysql.connector.connect(
                 user=user,
                 password=password,
                 host=host,
-                database=os.environ['DB_NAME']
+                database=os.getenv('DB_NAME'),
+                port=port
             )
         except mysql.connector.Error as err:
             log.error("Connection to MySQL db could not be established")

@@ -24,14 +24,13 @@ log.addHandler(handler)
 # init
 
 def lambda_handler(event, context):
-    database_id = os.environ['DATABASE_ID']
+    database_id = os.getenv('DATABASE_ID')
     database_settings = aws.dynamodb_query(table='database_settings', id=database_id)
     db_host = database_settings[0]['host']
     db_user = database_settings[0]['user']
     db_password = database_settings[0]['password']
-    db = Connection(user=db_user, password=db_password, host=db_host)
-    log.info(db.get_all(table='activity'))
-    exit()
+    db_port = database_settings[0]['port']
+    db = Connection(user=db_user, password=db_password, host=db_host, port=db_port)
     strava = Strava(db)
 
     lambda_client = boto3.client('lambda')
@@ -118,7 +117,7 @@ def lambda_handler(event, context):
         log.error('Something went wrong')
         log.error(e)
         payload = {
-            "to": os.environ['MAIL_CONTACT'],
+            "to": os.getenv('MAIL_CONTACT'),
             "subject": "Strava sync went wrong",
             "content": str(e)
         }

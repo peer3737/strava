@@ -69,12 +69,9 @@ def retry_request(url, headers=None, max_retries=5, params=None, method='get', j
                 return Response(500, e, None)
 
 
-
 class Strava:
     @staticmethod
     def get_token(db):
-
-
         result = db.get_all(table='access_key')
         access_token = result[1]
         refresh_token = result[2]

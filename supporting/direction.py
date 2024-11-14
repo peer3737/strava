@@ -6,7 +6,7 @@ from database.db import Connection
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(os.environ.get("LOG_LEVEL", logging.INFO))
-weather_table = 'weather_meteo'
+weather_table = os.environ['WEATHER_TABLE']
 
 def calculate_bearing(lat1, lon1, lat2, lon2, wind_direction):
     colors = {

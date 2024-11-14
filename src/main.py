@@ -1,5 +1,5 @@
 from supporting.strava import Strava
-from supporting import direction, effort, weather
+from supporting import direction, effort, weather, aws
 from datetime import datetime, timedelta
 import logging
 from database.db import Connection
@@ -18,7 +18,13 @@ for handler in log.handlers:
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 log.addHandler(handler)
-db = Connection()
+
+database_id = os.environ['DATABASE_ID']
+database_settings = aws.dynamodb_query(table='database_settings', id=database_id)
+db_host = database_settings[0]['host']
+db_user = database_settings[0]['user']
+db_password = database_settings[0]['password']
+db = Connection(user=db_user, password=db_password, host=db_host)
 strava = Strava()
 
 
@@ -51,7 +57,7 @@ def lambda_handler(event, context):
                              'total_elevation_gain',
                              'type', 'sport_type', 'workout_type', 'start_date_local', 'average_heartrate',
                              'max_heartrate',
-                             'suffer_score']
+                             'suffer_score', 'gear_id']
             content = {}
             activity_id = activity['id']
 

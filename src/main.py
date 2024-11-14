@@ -29,9 +29,6 @@ def lambda_handler(event, context):
     db_host = database_settings[0]['host']
     db_user = database_settings[0]['user']
     db_password = database_settings[0]['password']
-    log.info(db_host)
-    log.info(db_user)
-    log.info(db_password)
     db = Connection(user=db_user, password=db_password, host=db_host)
     strava = Strava(db)
 

@@ -2,11 +2,10 @@ import logging
 import os
 import json
 from database.db import Connection
+from supporting import aws
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(os.environ.get("LOG_LEVEL", logging.INFO))
-
-db = Connection()
 
 
 def float_to_time_string(seconds):
@@ -52,7 +51,7 @@ def find_fastest_and_slowest_segment_optimized(time_values, distance_values, tar
     return min_time_value, max_time_value, distance_values[fastest_segment_start], distance_values[slowest_segment_start]
 
 
-def execute():
+def execute(db):
     activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM activity_effort)', order_by_type='desc')
     effort_list = [100, 200, 400, 800, 1000, 1500, 3000, 5000, 10000, 15000, 20000, 21097, 30000, 42195]
     act_counter = 0

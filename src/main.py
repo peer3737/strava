@@ -124,9 +124,9 @@ def lambda_handler(event, context):
             InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
             Payload=json.dumps(payload)
         )
-    weather.execute()
-    direction.execute()
-    effort.execute()
+    weather.execute(db)
+    direction.execute(db)
+    effort.execute(db)
     db.close()
 #
 # lambda_handler(None, None)

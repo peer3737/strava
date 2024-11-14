@@ -4,6 +4,7 @@ from datetime import timedelta, datetime
 import math
 import logging
 import os
+from supporting import aws
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
@@ -51,8 +52,8 @@ def haversine_afstand(lat1, lon1, lat2, lon2):
     return afstand
 
 
-def execute():
-    db = Connection()
+def execute(db):
+
     all_activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM weather_meteo)', order_by_type='desc')
     act_counter = 0
     total_act = len(all_activities)

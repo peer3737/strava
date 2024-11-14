@@ -17,14 +17,20 @@ def convert_to_date_string(data):
         return data  #
 
 
+
 class Connection:
-    def __init__(self, user, password, host):  # Constructor to initialize connection
-        self.cnx = mysql.connector.connect(
-            user=user,
-            password=password,
-            host=host,
-            database=os.environ['DB_NAME']
-        )
+    def __init__(self, user, password, host):
+        try:
+            self.cnx = mysql.connector.connect(
+                user=user,
+                password=password,
+                host=host,
+                database=os.environ['DB_NAME']
+            )
+        except mysql.connector.Error as err:
+            log.error("Connection to MySQL db could not be established")
+            log.error(err)
+            self.cnx = None
 
     def insert(self, table, json_data, batch_size=1000, mode='single'):
         log.info(f"Trying to insert records into table {table}")

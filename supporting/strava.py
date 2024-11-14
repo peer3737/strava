@@ -69,12 +69,9 @@ def retry_request(url, headers=None, max_retries=5, params=None, method='get', j
                 return Response(500, e, None)
 
 
-
 class Strava:
     @staticmethod
-    def get_token():
-
-        db = Connection()
+    def get_token(db):
         result = db.get_all(table='access_key')
         access_token = result[1]
         refresh_token = result[2]
@@ -107,14 +104,14 @@ class Strava:
             db.update(table='access_key', record_id=1, json_data=new_values)
             access_token = content["access_token"]
 
-        db.close()
+
         return access_token
 
-    def __init__(self):
-        self.access_token = self.get_token()
+    def __init__(self, db):
+        self.access_token = self.get_token(db)
         # self.access_token = "d572f0146bb08b673134f5d8a1735beda026edab"
 
-    def getactvities(self, start_date, end_date, page, pagesize):
+    def getactvities(self, start_date, end_date, page=1, pagesize=200):
         log.info("Read list of activities")
         url = f"https://www.strava.com/api/v3/athlete/activities?before={end_date}&after={start_date}&page={page}&per_page={pagesize}"
         _headers = {
@@ -229,3 +226,27 @@ class Strava:
                 result_set.append(item)
 
         return result_set
+
+
+    def getgear(self, gear_id):
+        log.info(f"Read gear with id={gear_id}")
+        url = f"https://www.strava.com/api/v3/gear/{gear_id}"
+        _headers = {
+            "Authorization": f"Bearer {self.access_token}"
+        }
+
+        response = retry_request(url, headers=_headers, method='get')
+        if response.status_code == 429:
+            if response.rate >= 1000:
+                log.info(f"Daily usage = {response.rate} >= 1000, so we are done for this day")
+                exit()
+            else:
+                log.info(f"Daily usage = {response.rate} < 1000, so let's have a break for 15 minutes")
+                time.sleep(15 * 60)
+                response = retry_request(url, headers=_headers, method='get')
+                return json.loads(response.content)
+
+        elif response.status_code != 200:
+            return []
+
+        return json.loads(response.content)

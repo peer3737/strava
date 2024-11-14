@@ -2,11 +2,12 @@ import logging
 import os
 import math
 from database.db import Connection
+from supporting import aws
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(os.environ.get("LOG_LEVEL", logging.INFO))
-weather_table = 'weather_meteo'
+weather_table = os.getenv('WEATHER_TABLE')
 
 def calculate_bearing(lat1, lon1, lat2, lon2, wind_direction):
     colors = {
@@ -77,8 +78,7 @@ def calculate_bearing(lat1, lon1, lat2, lon2, wind_direction):
     return colors[str(closest_color)]
 
 
-def execute():
-    db = Connection()
+def execute(db):
 
     activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM running_colors)',
                                  order_by_type='desc')
@@ -115,4 +115,3 @@ def execute():
         }
         db.insert(table="running_colors", json_data=json_data)
 
-execute()

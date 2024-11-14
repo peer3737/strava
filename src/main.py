@@ -1,5 +1,5 @@
 from supporting.strava import Strava
-from supporting import direction, effort, weather
+from supporting import direction, effort, weather, aws
 from datetime import datetime, timedelta
 import logging
 from database.db import Connection
@@ -18,13 +18,21 @@ for handler in log.handlers:
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 log.addHandler(handler)
-db = Connection()
-strava = Strava()
+
 
 
 # init
 
 def lambda_handler(event, context):
+    database_id = os.getenv('DATABASE_ID')
+    database_settings = aws.dynamodb_query(table='database_settings', id=database_id)
+    db_host = database_settings[0]['host']
+    db_user = database_settings[0]['user']
+    db_password = database_settings[0]['password']
+    db_port = database_settings[0]['port']
+    db = Connection(user=db_user, password=db_password, host=db_host, port=db_port)
+    strava = Strava(db)
+
     lambda_client = boto3.client('lambda')
 
     try:
@@ -51,7 +59,7 @@ def lambda_handler(event, context):
                              'total_elevation_gain',
                              'type', 'sport_type', 'workout_type', 'start_date_local', 'average_heartrate',
                              'max_heartrate',
-                             'suffer_score']
+                             'suffer_score', 'gear_id']
             content = {}
             activity_id = activity['id']
 
@@ -109,7 +117,7 @@ def lambda_handler(event, context):
         log.error('Something went wrong')
         log.error(e)
         payload = {
-            "to": os.environ['MAIL_CONTACT'],
+            "to": os.getenv('MAIL_CONTACT'),
             "subject": "Strava sync went wrong",
             "content": str(e)
         }
@@ -118,9 +126,9 @@ def lambda_handler(event, context):
             InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
             Payload=json.dumps(payload)
         )
-    weather.execute()
-    direction.execute()
-    effort.execute()
+    weather.execute(db)
+    direction.execute(db)
+    effort.execute(db)
     db.close()
 #
 # lambda_handler(None, None)

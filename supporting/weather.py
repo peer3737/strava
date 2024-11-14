@@ -4,11 +4,12 @@ from datetime import timedelta, datetime
 import math
 import logging
 import os
+from supporting import aws
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(os.environ.get("LOG_LEVEL", logging.INFO))
-
+weather_table = os.getenv('WEATHER_TABLE')
 
 def calculate_wet_bulb(realtemp, rh):
     tw = realtemp * math.atan(0.151977 * math.pow((rh + 8.313659), 0.5)) + math.atan(realtemp + rh) - \
@@ -51,9 +52,9 @@ def haversine_afstand(lat1, lon1, lat2, lon2):
     return afstand
 
 
-def execute():
-    db = Connection()
-    all_activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM weather_meteo)', order_by_type='desc')
+def execute(db):
+
+    all_activities = db.get_specific(table='activity', where=f'id > (SELECT max(activity_id) FROM {weather_table})', order_by_type='desc')
     act_counter = 0
     total_act = len(all_activities)
     for activity in all_activities:
@@ -61,7 +62,6 @@ def execute():
         activity_id = activity[0]
         start_date_time = activity[9]
         log.info(f'Handling activity {activity_id} ({act_counter}/{total_act})')
-        db = Connection()
 
         activity_streams = db.get_specific(table='activity_streams', where=f'activity_id={activity_id}')[0]
         if activity_streams is None:
@@ -246,7 +246,7 @@ def execute():
             "air_pressure": ', '.join(air_pressure)
         }
 
-        db.insert(table="weather_meteo", json_data=datainput)
+        db.insert(table=weather_table, json_data=datainput)
 
 #
 #

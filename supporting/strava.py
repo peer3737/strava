@@ -104,7 +104,7 @@ class Strava:
             db.update(table='access_key', record_id=1, json_data=new_values)
             access_token = content["access_token"]
 
-        db.close()
+
         return access_token
 
     def __init__(self, db):

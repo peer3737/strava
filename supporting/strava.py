@@ -72,9 +72,9 @@ def retry_request(url, headers=None, max_retries=5, params=None, method='get', j
 
 class Strava:
     @staticmethod
-    def get_token():
+    def get_token(db):
 
-        db = Connection()
+
         result = db.get_all(table='access_key')
         access_token = result[1]
         refresh_token = result[2]
@@ -110,8 +110,8 @@ class Strava:
         db.close()
         return access_token
 
-    def __init__(self):
-        self.access_token = self.get_token()
+    def __init__(self, db):
+        self.access_token = self.get_token(db)
         # self.access_token = "d572f0146bb08b673134f5d8a1735beda026edab"
 
     def getactvities(self, start_date, end_date, page=1, pagesize=200):

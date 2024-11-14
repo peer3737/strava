@@ -25,7 +25,7 @@ db_host = database_settings[0]['host']
 db_user = database_settings[0]['user']
 db_password = database_settings[0]['password']
 db = Connection(user=db_user, password=db_password, host=db_host)
-strava = Strava()
+strava = Strava(db)
 
 
 # init

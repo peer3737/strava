@@ -26,7 +26,8 @@ class Connection:
                 password=password,
                 host=host,
                 database=os.getenv('DB_NAME'),
-                port=port
+                port=port,
+                charset="utf8mb4"
             )
         except mysql.connector.Error as err:
             log.error("Connection to MySQL db could not be established")

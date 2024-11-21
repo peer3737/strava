@@ -30,7 +30,7 @@ def lambda_handler(event, context):
     db_user = database_settings[0]['user']
     db_password = database_settings[0]['password']
     db_port = database_settings[0]['port']
-    db = Connection(user=db_user, password=db_password, host=db_host, port=db_port)
+    db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8mb4")
     strava = Strava(db)
 
     lambda_client = boto3.client('lambda')
@@ -109,6 +109,9 @@ def lambda_handler(event, context):
                     else:
                         lap_content[lap_key] = None
                 content.append(lap_content)
+            db.close()
+            db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
+
             if len(content) > 0:
                 db.insert(table='activity_laps', json_data=content, mode='many')
             else:
@@ -126,6 +129,7 @@ def lambda_handler(event, context):
             InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
             Payload=json.dumps(payload)
         )
+        exit()
     weather.execute(db)
     direction.execute(db)
     effort.execute(db)

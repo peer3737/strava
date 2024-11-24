@@ -13,11 +13,10 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 
 
-def execute(db, strava):
+def execute(db, strava, activity_id):
     log.info(f'Update gear')
-    gear = db.get_all(table="gear", type="all")
-    for item in gear:
-        gear_id = item[0]
+    gear_id = db.get_specific(table='activity', where=f'id = {activity_id}', order_by_type='desc')[0][15]
+    if gear_id is not None:
         strava_gear = strava.getgear(gear_id=gear_id)
         log.info(f'Update {strava_gear["name"]}')
         update_data = {
@@ -33,4 +32,11 @@ def execute(db, strava):
             "description": strava_gear["description"],
             "notification_distance": strava_gear["notification_distance"],
         }
-        db.update(table="gear", json_data=update_data, record_id=gear_id)
+
+        check_gear = db.get_specific(table='gear', where=f'id = {gear_id}', order_by_type='desc')
+        if len(check_gear) == 0:
+            update_data['id'] = gear_id
+            db.insert(table="gear", json_data=update_data)
+
+        else:
+            db.update(table="gear", json_data=update_data, record_id=gear_id)

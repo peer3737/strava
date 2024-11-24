@@ -52,9 +52,9 @@ def haversine_afstand(lat1, lon1, lat2, lon2):
     return afstand
 
 
-def execute(db):
-
-    all_activities = db.get_specific(table='activity', where=f'id > (SELECT max(activity_id) FROM {weather_table})', order_by_type='desc')
+def execute(db, activity_id):
+    # all_activities = db.get_specific(table='activity', where=f'id > (SELECT max(activity_id) FROM {weather_table})', order_by_type='desc')
+    all_activities = db.get_specific(table='activity', where=f'id = {activity_id}', order_by_type='desc')
     act_counter = 0
     total_act = len(all_activities)
     for activity in all_activities:

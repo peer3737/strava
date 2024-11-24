@@ -1,5 +1,5 @@
 from supporting.strava import Strava
-from supporting import direction, effort, weather, aws
+from supporting import direction, effort, weather, aws, gear
 from datetime import datetime, timedelta
 import logging
 from database.db import Connection
@@ -133,6 +133,7 @@ def lambda_handler(event, context):
     weather.execute(db)
     direction.execute(db)
     effort.execute(db)
+    gear.execute(db, strava)
     db.close()
 #
 # lambda_handler(None, None)

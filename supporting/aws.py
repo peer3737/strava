@@ -2,6 +2,7 @@ import boto3
 from boto3.dynamodb.conditions import Attr
 from botocore.exceptions import ClientError
 
+
 def dynamodb_query(table, id=''):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table)
@@ -14,7 +15,6 @@ def dynamodb_query(table, id=''):
     # Retrieve and print the items
     items = response.get('Items', [])
     return items
-
 
 
 def dynamo_db_update(table, item_id='', attribute='', value=''):

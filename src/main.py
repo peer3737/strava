@@ -116,6 +116,11 @@ def lambda_handler(event, context):
                 db.insert(table='activity_laps', json_data=content, mode='many')
             else:
                 log.info(f"No laps detected for activity with ID={activity_id}")
+
+            weather.execute(db, activity_id)
+            direction.execute(db, activity_id)
+            effort.execute(db, activity_id)
+            gear.execute(db, strava, activity_id)
     except Exception as e:
         log.error('Something went wrong')
         log.error(e)
@@ -130,10 +135,7 @@ def lambda_handler(event, context):
             Payload=json.dumps(payload)
         )
         exit()
-    weather.execute(db)
-    direction.execute(db)
-    effort.execute(db)
-    gear.execute(db, strava)
+
     db.close()
 #
 # lambda_handler(None, None)

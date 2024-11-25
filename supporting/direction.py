@@ -78,14 +78,12 @@ def calculate_bearing(lat1, lon1, lat2, lon2, wind_direction):
     return colors[str(closest_color)]
 
 
-def execute(db):
+def execute(db, activity_id):
 
-    activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM running_colors)',
-                                 order_by_type='desc')
+    # activities = db.get_specific(table='activity', where='id > (SELECT max(activity_id) FROM running_colors)',
+    # order_by_type='desc')
 
-    # activities = db.get_specific(table='activity', where='id = 8259287156',
-    #                              order_by_type='desc')
-
+    activities = db.get_specific(table='activity', where=f'id = {activity_id}', order_by_type='desc')
     total_act = len(activities)
     act_counter = 0
     for activity in activities:

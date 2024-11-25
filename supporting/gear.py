@@ -33,7 +33,7 @@ def execute(db, strava, activity_id):
             "notification_distance": strava_gear["notification_distance"],
         }
 
-        check_gear = db.get_specific(table='gear', where=f'id = {gear_id}', order_by_type='desc')
+        check_gear = db.get_specific(table='gear', where=f"id = '{gear_id}'", order_by_type='desc')
         if len(check_gear) == 0:
             update_data['id'] = gear_id
             db.insert(table="gear", json_data=update_data)

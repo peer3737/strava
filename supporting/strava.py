@@ -76,12 +76,12 @@ class Strava:
         access_token = result[1]
         refresh_token = result[2]
         expire_date = result[3]
+        client_id = result[4]
+        client_secret = result[5]
         now = int(datetime.now().timestamp())
         delta = expire_date - now
         if delta < 1000:
             log.info("Access token has to be renewed")
-            client_id = '65907'
-            client_secret = '02c9c9ff470822c2e83ba0c8ddfe74e6fcd4c86e'
             auth_url = "https://www.strava.com/oauth/token"
             params = {
                 "client_id": client_id,
@@ -89,6 +89,7 @@ class Strava:
                 "refresh_token": refresh_token,
                 "grant_type": "refresh_token"
             }
+
             log.info("Retrieving new access token")
             response = retry_request(auth_url, headers=None, method='post', params=params)
             if response.status_code != 200:
@@ -231,6 +232,100 @@ class Strava:
     def getgear(self, gear_id):
         log.info(f"Read gear with id={gear_id}")
         url = f"https://www.strava.com/api/v3/gear/{gear_id}"
+        _headers = {
+            "Authorization": f"Bearer {self.access_token}"
+        }
+
+        response = retry_request(url, headers=_headers, method='get')
+        if response.status_code == 429:
+            if response.rate >= 1000:
+                log.info(f"Daily usage = {response.rate} >= 1000, so we are done for this day")
+                exit()
+            else:
+                log.info(f"Daily usage = {response.rate} < 1000, so let's have a break for 15 minutes")
+                time.sleep(15 * 60)
+                response = retry_request(url, headers=_headers, method='get')
+                return json.loads(response.content)
+
+        elif response.status_code != 200:
+            return []
+
+        return json.loads(response.content)
+
+
+    def getclub(self, club_id):
+        log.info(f"Read club with id={club_id}")
+        url = f"https://www.strava.com/api/v3/clubs/{club_id}"
+        _headers = {
+            "Authorization": f"Bearer {self.access_token}"
+        }
+
+        response = retry_request(url, headers=_headers, method='get')
+        if response.status_code == 429:
+            if response.rate >= 1000:
+                log.info(f"Daily usage = {response.rate} >= 1000, so we are done for this day")
+                exit()
+            else:
+                log.info(f"Daily usage = {response.rate} < 1000, so let's have a break for 15 minutes")
+                time.sleep(15 * 60)
+                response = retry_request(url, headers=_headers, method='get')
+                return json.loads(response.content)
+
+        elif response.status_code != 200:
+            return []
+
+        return json.loads(response.content)
+
+    def getclubactivities(self, club_id,  page=1, pagesize=200):
+        log.info("Read list of activities")
+        url = f"https://www.strava.com/api/v3/clubs/{club_id}/activities?page={page}&per_page={pagesize}"
+        _headers = {
+            "Authorization": f"Bearer {self.access_token}"
+        }
+
+        response = retry_request(url, headers=_headers, method='get')
+        if response.status_code == 429:
+            if response.rate >= 1000:
+                log.info(f"Daily usage = {response.rate} >= 1000, so we are done for this day")
+                exit()
+            else:
+                log.info(f"Daily usage = {response.rate} < 1000, so let's have a break for 15 minutes")
+                time.sleep(15 * 60)
+                response = retry_request(url, headers=_headers, method='get')
+                return json.loads(response.content)
+
+        elif response.status_code != 200:
+            return []
+
+        return json.loads(response.content)
+
+
+    def athlete(self):
+        log.info(f"Read athletes")
+        url = f"https://www.strava.com/api/v3/athlete"
+        _headers = {
+            "Authorization": f"Bearer {self.access_token}"
+        }
+
+        response = retry_request(url, headers=_headers, method='get')
+        if response.status_code == 429:
+            if response.rate >= 1000:
+                log.info(f"Daily usage = {response.rate} >= 1000, so we are done for this day")
+                exit()
+            else:
+                log.info(f"Daily usage = {response.rate} < 1000, so let's have a break for 15 minutes")
+                time.sleep(15 * 60)
+                response = retry_request(url, headers=_headers, method='get')
+                return json.loads(response.content)
+
+        elif response.status_code != 200:
+            return []
+
+        return json.loads(response.content)
+
+    def athletezones(self):
+        log.info(f"Read athletes")
+        url = f"https://www.strava.com/api/v3/athlete/zones"
         _headers = {
             "Authorization": f"Bearer {self.access_token}"
         }

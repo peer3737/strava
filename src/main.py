@@ -92,6 +92,7 @@ def lambda_handler(event, context):
                 else:
                     content[stream_key] = None
 
+            latlng = content["latlng"]
             db.insert(table='activity_streams', json_data=content)
 
             # get activity laps
@@ -116,9 +117,9 @@ def lambda_handler(event, context):
                 db.insert(table='activity_laps', json_data=content, mode='many')
             else:
                 log.info(f"No laps detected for activity with ID={activity_id}")
-
-            weather.execute(db, activity_id)
-            direction.execute(db, activity_id)
+            if latlng is not None:
+                weather.execute(db, activity_id)
+                direction.execute(db, activity_id)
             effort.execute(db, activity_id)
             gear.execute(db, strava, activity_id)
     except Exception as e:

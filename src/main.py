@@ -59,7 +59,7 @@ def lambda_handler(event, context):
                              'total_elevation_gain',
                              'type', 'sport_type', 'workout_type', 'start_date_local', 'average_heartrate',
                              'max_heartrate',
-                             'suffer_score', 'gear_id']
+                             'suffer_score', 'gear_id', 'device_name']
             content = {}
             activity_id = activity['id']
 

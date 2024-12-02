@@ -94,7 +94,12 @@ class Connection:
         try:
             results = {}
             cursor = self.cnx.cursor()  # Get cursor from existing connection
-            query = f"SELECT * FROM {table} ORDER BY {order_by} {order_by_type}"
+            if type == 'all':
+                query = f"SELECT * FROM {table} ORDER BY {order_by} {order_by_type}"
+            elif type == 'first':
+                query = f"SELECT * FROM {table} ORDER BY {order_by} {order_by_type}"
+            else:
+                return []
             cursor.execute(query)
             data = cursor.fetchall()
 
@@ -108,20 +113,25 @@ class Connection:
             log.error(f"Error: {err}")
 
 
-    def update(self, table, json_data, record_id, mode='single'):
+    def update(self, table='', json_data=None, record_id='id', mode='single', unique_column='id', custom=''):
         cursor = self.cnx.cursor()  # Get cursor from existing connection
 
         if mode == 'single':
             log.info(f"Trying to update record with ID={record_id} in table {table}")
             try:
-                # Construct the SET clause for the UPDATE query
-                set_clause = ', '.join([f"{key} = %s" for key in json_data.keys()])
 
-                # Build the UPDATE query
-                query = f"UPDATE {table} SET {set_clause} WHERE id = %s"
+                if custom != '':
+                    query = custom
+                    cursor.execute(query)
+                else:
+                    # Construct the SET clause for the UPDATE query
+                    set_clause = ', '.join([f"{key} = %s" for key in json_data.keys()])
+
+                    # Build the UPDATE query
+                    query = f"UPDATE {table} SET {set_clause} WHERE {unique_column} = %s"
 
                 # Execute the query with the updated values and the record ID
-                cursor.execute(query, tuple(json_data.values()) + (record_id,))
+                    cursor.execute(query, tuple(json_data.values()) + (record_id,))
 
                 # Commit the changes to the database
                 self.cnx.commit()
@@ -136,7 +146,7 @@ class Connection:
         try:
             results = {}
             cursor = self.cnx.cursor()  # Get cursor from existing connection
-            query = f"SELECT * FROM {table} GROUP BY {grouping }HAVING count(*) > 1"
+            query = f"SELECT * FROM {table} GROUP BY {grouping} HAVING count(*) > 1"
             cursor.execute(query)
             data = cursor.fetchall()
 
@@ -147,13 +157,19 @@ class Connection:
 
         except mysql.connector.Error as err:
             log.error(f"Error: {err}")
-    def get_specific(self, table, where="1=1", order_by="id", order_by_type="asc"):
-        cursor = self.cnx.cursor()  # Get cursor from existing connection
-        query = f"SELECT * FROM {table} WHERE {where} ORDER BY {order_by} {order_by_type}"
-        # log.info(query)
-        cursor.execute(query)
-        data = cursor.fetchall()
-        return data
+    def get_specific(self, table="", where="1=1", order_by="id", order_by_type="asc", custom=""):
+        try:
+            if custom != "":
+                query = custom
+            else:
+                query = f"SELECT * FROM {table} WHERE {where} ORDER BY {order_by} {order_by_type}"
 
+            cursor = self.cnx.cursor()  # Get cursor from existing connection
+            # log.info(query)
+            cursor.execute(query)
+            data = cursor.fetchall()
+            return data
+        except Exception as e:
+            return e
     def close(self):  # Method to close connection when done
         self.cnx.close()

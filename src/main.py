@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     devices_result = db.get_all(table='device', type='all')
     devices_in_db = {}
     for device in devices_result:
-        devices_in_db[device[1]] = device[2]
+        devices_in_db[device[1]] = device[0]
 
     lambda_client = boto3.client('lambda')
 
@@ -85,7 +85,7 @@ def lambda_handler(event, context):
                             devices_result = db.get_all(table='device', type='all')
                             devices_in_db = {}
                             for device in devices_result:
-                                devices_in_db[device[1]] = device[2]
+                                devices_in_db[device[1]] = device[0]
 
                             content[activity_key] = devices_in_db[activity_details[activity_key]]
                 else:

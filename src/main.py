@@ -32,6 +32,10 @@ def lambda_handler(event, context):
     db_port = database_settings[0]['port']
     db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8mb4")
     strava = Strava(db)
+    devices_result = db.get_all(table='device', type='all')
+    devices_in_db = {}
+    for device in devices_result:
+        devices_in_db[device[1]] = device[2]
 
     lambda_client = boto3.client('lambda')
 
@@ -69,6 +73,21 @@ def lambda_handler(event, context):
                     content[activity_key] = activity_details[activity_key]
                     if activity_key == 'start_date_local':
                         content[activity_key] = f'{content[activity_key][0:10]} {content[activity_key][11:19]}'
+                    if activity_key == 'device_name':
+                        if activity_details[activity_key] in devices_in_db:
+                            content[activity_key] = devices_in_db[activity_details[activity_key]]
+
+                        else:
+                            device_input = {
+                                "name": content[activity_key]
+                            }
+                            db.insert(table='device', json_data=device_input)
+                            devices_result = db.get_all(table='device', type='all')
+                            devices_in_db = {}
+                            for device in devices_result:
+                                devices_in_db[device[1]] = device[2]
+
+                            content[activity_key] = devices_in_db[activity_details[activity_key]]
                 else:
                     content[activity_key] = None
             if content['elapsed_time'] is None:

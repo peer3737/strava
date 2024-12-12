@@ -37,7 +37,8 @@ class Connection:
     def insert(self, table, json_data, batch_size=1000, mode='single'):
         log.info(f"Trying to insert records into table {table}")
         cursor = self.cnx.cursor()  # Get cursor from existing connection
-
+        if table == 'activity':
+            cursor.execute("SET NAMES utf8mb4;")
         if mode == 'single':
             try:
 

@@ -130,7 +130,7 @@ def lambda_handler(event, context):
                         lap_content[lap_key] = None
                 content.append(lap_content)
             db.close()
-            db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8mb4")
+            db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
 
             if len(content) > 0:
                 db.insert(table='activity_laps', json_data=content, mode='many')

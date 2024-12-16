@@ -24,6 +24,7 @@ log.addHandler(handler)
 # init
 
 def lambda_handler(event, context):
+    is_test = os.getenv('IS_TEST') == 'true'
     database_id = os.getenv('DATABASE_ID')
     database_settings = aws.dynamodb_query(table='database_settings', id=database_id)
     db_host = database_settings[0]['host']
@@ -133,11 +134,13 @@ def lambda_handler(event, context):
             #
             # db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
 
+            function_name = "strava-laps-test" if is_test else "strava-laps"
+
             payload = {
                 "activity_id": activity_id
             }
             lambda_client.invoke(
-                FunctionName="strava-laps",
+                FunctionName=function_name,
                 InvocationType="Event",  # Asynchronous invocation
                 Payload=json.dumps(payload)
             )

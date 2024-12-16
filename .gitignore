@@ -10,3 +10,4 @@ supporting/__pycache__/effort.cpython-311.pyc
 supporting/__pycache__/strava.cpython-311.pyc
 supporting/__pycache__/open_meteo.cpython-311.pyc,supporting/__pycache__/weather.cpython-311.pyc
 *.pyc
+export/

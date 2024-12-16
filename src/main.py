@@ -145,11 +145,12 @@ def lambda_handler(event, context):
             payload = {
                 "activity_id": activity_id
             }
-            lambda_client.invoke(
+            result = lambda_client.invoke(
                 FunctionName=function_name,
                 InvocationType="Event",  # Asynchronous invocation
                 Payload=json.dumps(payload)
             )
+            log.info(result)
             if latlng is not None:
                 weather.execute(db, activity_id)
                 direction.execute(db, activity_id)

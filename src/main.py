@@ -133,7 +133,13 @@ def lambda_handler(event, context):
             #     content.append(lap_content)
             #
             # db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
-
+            #
+            #
+            # if len(content) > 0:
+            #     db.insert(table='activity_laps', json_data=content, mode='many')
+            # else:
+            #     log.info(f"No laps detected for activity with ID={activity_id}")
+            #
             function_name = "strava-laps-test" if is_test else "strava-laps"
 
             payload = {
@@ -144,10 +150,6 @@ def lambda_handler(event, context):
                 InvocationType="Event",  # Asynchronous invocation
                 Payload=json.dumps(payload)
             )
-            if len(content) > 0:
-                db.insert(table='activity_laps', json_data=content, mode='many')
-            else:
-                log.info(f"No laps detected for activity with ID={activity_id}")
             if latlng is not None:
                 weather.execute(db, activity_id)
                 direction.execute(db, activity_id)

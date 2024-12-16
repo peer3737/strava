@@ -1,11 +1,11 @@
+import logging
+import os
+from datetime import datetime, timedelta
 from supporting.strava import Strava
 from supporting import direction, effort, weather, aws, gear
-from datetime import datetime, timedelta
-import logging
 from database.db import Connection
 import boto3
 import json
-import os
 
 
 formatter = logging.Formatter('[%(levelname)s] [%(asctime)s] %(message)s')
@@ -113,25 +113,34 @@ def lambda_handler(event, context):
 
             latlng = content["latlng"]
             db.insert(table='activity_streams', json_data=content)
+            db.close()
 
             # get activity laps
-            lap_keys = ['name', 'split', 'distance', 'moving_time', 'elapsed_time', 'start_index',
-                        'total_elevation_gain', 'average_cadence', 'average_heartrate', 'max_heartrate', 'pace_zone']
-            laps = strava.activity_laps(activity_id=activity_id)
-            content = []
-            for lap in laps:
-                lap_content = {
-                    "activity_id": activity_id
-                }
-                for lap_key in lap_keys:
-                    if lap_key in lap:
-                        lap_content[lap_key] = lap[lap_key]
-                    else:
-                        lap_content[lap_key] = None
-                content.append(lap_content)
-            db.close()
-            db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
+            # lap_keys = ['name', 'split', 'distance', 'moving_time', 'elapsed_time', 'start_index',
+            #             'total_elevation_gain', 'average_cadence', 'average_heartrate', 'max_heartrate', 'pace_zone']
+            # laps = strava.activity_laps(activity_id=activity_id)
+            # content = []
+            # for lap in laps:
+            #     lap_content = {
+            #         "activity_id": activity_id
+            #     }
+            #     for lap_key in lap_keys:
+            #         if lap_key in lap:
+            #             lap_content[lap_key] = lap[lap_key]
+            #         else:
+            #             lap_content[lap_key] = None
+            #     content.append(lap_content)
+            #
+            # db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
 
+            payload = {
+                "activity_id": activity_id
+            }
+            lambda_client.invoke(
+                FunctionName="strava-laps",
+                InvocationType="Event",  # Asynchronous invocation
+                Payload=json.dumps(payload)
+            )
             if len(content) > 0:
                 db.insert(table='activity_laps', json_data=content, mode='many')
             else:
@@ -144,16 +153,16 @@ def lambda_handler(event, context):
     except Exception as e:
         log.error('Something went wrong')
         log.error(e)
-        payload = {
-            "to": os.getenv('MAIL_CONTACT'),
-            "subject": "Strava sync went wrong",
-            "content": str(e)
-        }
-        lambda_client.invoke(
-            FunctionName='sendMail',  # Replace with the name of your sendMail function
-            InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
-            Payload=json.dumps(payload)
-        )
+        # payload = {
+        #     "to": os.getenv('MAIL_CONTACT'),
+        #     "subject": "Strava sync went wrong",
+        #     "content": str(e)
+        # }
+        # lambda_client.invoke(
+        #     FunctionName='sendMail',  # Replace with the name of your sendMail function
+        #     InvocationType='Event',  # Use 'RequestResponse' for synchronous invocation
+        #     Payload=json.dumps(payload)
+        # )
         exit()
 
     db.close()

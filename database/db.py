@@ -118,7 +118,7 @@ class Connection:
         cursor = self.cnx.cursor()  # Get cursor from existing connection
 
         if mode == 'single':
-            log.info(f"Trying to update record with ID={record_id} in table {table}")
+            log.info(f"Trying to update record with {unique_column}={record_id} in table {table}")
             try:
 
                 if custom != '':

@@ -114,7 +114,7 @@ def lambda_handler(event, context):
 
             latlng = content["latlng"]
             db.insert(table='activity_streams', json_data=content)
-            db.close()
+
 
             # get activity laps
             # lap_keys = ['name', 'split', 'distance', 'moving_time', 'elapsed_time', 'start_index',
@@ -150,7 +150,7 @@ def lambda_handler(event, context):
                 InvocationType="Event",  # Asynchronous invocation
                 Payload=json.dumps(payload)
             )
-            log.info(result)
+
             if latlng is not None:
                 weather.execute(db, activity_id)
                 direction.execute(db, activity_id)
@@ -173,4 +173,4 @@ def lambda_handler(event, context):
 
     db.close()
 #
-# lambda_handler(None, None)
+lambda_handler(None, None)

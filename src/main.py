@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime, timedelta
 from supporting.strava import Strava
-from supporting import direction, effort, weather, aws, gear
+from supporting import aws
 from database.db import Connection
 import boto3
 import json
@@ -19,9 +19,6 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
-
-
-# init
 
 def lambda_handler(event, context):
     is_test = os.getenv('IS_TEST') == 'true'
@@ -100,46 +97,6 @@ def lambda_handler(event, context):
 
             db.insert(table='activity', json_data=content)
 
-            # get activity streams
-            # streams = strava.activity_stream(activity_id=activity_id)
-            # stream_keys = ["time", "distance", "latlng", "heartrate", "altitude", "cadence"]
-            # content = {
-            #     "activity_id": activity_id
-            # }
-            # for stream_key in stream_keys:
-            #     if stream_key in streams:
-            #         content[stream_key] = ','.join(map(str, streams[stream_key]["data"]))
-            #     else:
-            #         content[stream_key] = None
-            #
-            # latlng = content["latlng"]
-            # db.insert(table='activity_streams', json_data=content)
-
-
-            # get activity laps
-            # lap_keys = ['name', 'split', 'distance', 'moving_time', 'elapsed_time', 'start_index',
-            #             'total_elevation_gain', 'average_cadence', 'average_heartrate', 'max_heartrate', 'pace_zone']
-            # laps = strava.activity_laps(activity_id=activity_id)
-            # content = []
-            # for lap in laps:
-            #     lap_content = {
-            #         "activity_id": activity_id
-            #     }
-            #     for lap_key in lap_keys:
-            #         if lap_key in lap:
-            #             lap_content[lap_key] = lap[lap_key]
-            #         else:
-            #             lap_content[lap_key] = None
-            #     content.append(lap_content)
-            #
-            # db = Connection(user=db_user, password=db_password, host=db_host, port=db_port, charset="utf8")
-            #
-            #
-            # if len(content) > 0:
-            #     db.insert(table='activity_laps', json_data=content, mode='many')
-            # else:
-            #     log.info(f"No laps detected for activity with ID={activity_id}")
-            #
             log.info("Update streams")
             function_name = "strava-streams-test" if is_test else "strava-streams"
 
@@ -159,7 +116,7 @@ def lambda_handler(event, context):
             payload = {
                 "activity_id": activity_id
             }
-            result = lambda_client.invoke(
+            lambda_client.invoke(
                 FunctionName=function_name,
                 InvocationType="Event",  # Asynchronous invocation
                 Payload=json.dumps(payload)
@@ -172,7 +129,7 @@ def lambda_handler(event, context):
                     "activity_id": activity_id
                 }
 
-                result = lambda_client.invoke(
+                lambda_client.invoke(
                     FunctionName=function_name,
                     InvocationType="RequestResponse",  # Asynchronous invocation
                     Payload=json.dumps(payload)
@@ -183,7 +140,7 @@ def lambda_handler(event, context):
                     "activity_id": activity_id
                 }
 
-                result = lambda_client.invoke(
+                lambda_client.invoke(
                     FunctionName=function_name,
                     InvocationType="Event",  # Asynchronous invocation
                     Payload=json.dumps(payload)
@@ -194,23 +151,30 @@ def lambda_handler(event, context):
                 "activity_id": activity_id
             }
 
-            result = lambda_client.invoke(
+            lambda_client.invoke(
                 FunctionName=function_name,
                 InvocationType="Event",  # Asynchronous invocation
                 Payload=json.dumps(payload)
             )
-
+        if len(all_activities) > 0:
             log.info("Update gear")
             function_name = "strava-gear-test" if is_test else "strava-gear"
-            payload = {
-                "activity_id": activity_id
-            }
 
-            result = lambda_client.invoke(
+            lambda_client.invoke(
                 FunctionName=function_name,
-                InvocationType="Event",  # Asynchronous invocation
-                Payload=json.dumps(payload)
+                InvocationType="Event"
             )
+            log.info("Update stats")
+            function_name = "strava-stats-test" if is_test else "strava-stats"
+
+
+            lambda_client.invoke(
+                FunctionName=function_name,
+                InvocationType="Event"  # Asynchronous invocation
+
+            )
+
+
     except Exception as e:
         log.error('Something went wrong')
         log.error(e)
@@ -227,5 +191,4 @@ def lambda_handler(event, context):
         exit()
 
     db.close()
-#
-lambda_handler(None, None)
+

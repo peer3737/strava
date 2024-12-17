@@ -162,7 +162,7 @@ def lambda_handler(event, context):
                 result_body[activity_id]['direction'] = result['ResponseMetadata']['HTTPStatusCode']
 
             log.info("Update efforts")
-            function_name = "strava-efforts-test" if is_test else "efforts-gear"
+            function_name = "strava-efforts-test" if is_test else "strava-efforts"
             payload = {
                 "activity_id": activity_id
             }

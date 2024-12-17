@@ -76,7 +76,7 @@ def lambda_handler(event, context):
             result_body[activity_id]['laps_result'] = 0
             result_body[activity_id]['weather_result'] = 0
             result_body[activity_id]['direction_result'] = 0
-            result_body[activity_id]['efforts_results'] = 0
+            result_body[activity_id]['efforts_result'] = 0
             activity_details = strava.activity(activity_id=activity_id)
             for activity_key in activity_keys:
                 if activity_key in activity_details:
@@ -159,7 +159,7 @@ def lambda_handler(event, context):
                     InvocationType="Event",  # Asynchronous invocation
                     Payload=json.dumps(payload)
                 )
-                result_body[activity_id]['direction'] = result['ResponseMetadata']['HTTPStatusCode']
+                result_body[activity_id]['direction_result'] = result['ResponseMetadata']['HTTPStatusCode']
 
             log.info("Update efforts")
             function_name = "strava-efforts-test" if is_test else "strava-efforts"
